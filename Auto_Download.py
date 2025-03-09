@@ -1,7 +1,10 @@
 import requests
 import os
 from datetime import date
+import pandas as pd
+import glob
 
+# Download the CSV files from the given URLs
 base_url = "https://assets.ark-funds.com/fund-documents/funds-etf-csv/"
 csv_filenames = ['ARK_21SHARES_BITCOIN_ETF_ARKB_HOLDINGS.csv',
                  'ARK_AUTONOMOUS_TECH._&_ROBOTICS_ETF_ARKQ_HOLDINGS.csv',
@@ -18,7 +21,7 @@ csv_filenames = ['ARK_21SHARES_BITCOIN_ETF_ARKB_HOLDINGS.csv',
 prefix = date.today().isoformat()
 prefix += '_'
 
-
+# Create a directory to store the downloaded files
 download_dir = 'ARK_Files'
 os.makedirs(download_dir, exist_ok=True)
 
@@ -35,3 +38,15 @@ for filename in csv_filenames:
     else:
         print(f"Failed to download {filename}. Status code: {response.status_code}")
 
+# Combine the downloaded CSV files into a single database
+ARK_db = 'Database/ARK_database.csv'
+csv_files = glob.glob('*.csv')
+db_df = pd.read_csv(ARK_db)
+
+for file in csv_files:
+    new_data = pd.read_csv(file)
+    db_df = pd.concat([db_df, new_data], ignore_index=True)
+
+db_df.dropna(inplace=True)
+db_df = db_df.drop_duplicates(keep='first')
+db_df.to_csv(ARK_db, index=False)
