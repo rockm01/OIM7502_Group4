@@ -40,7 +40,7 @@ for filename in csv_filenames:
 
 # Combine the downloaded CSV files into a single database
 ARK_db = 'Database/ARK_database.csv'
-csv_files = glob.glob('*.csv')
+csv_files = glob.glob('ARK_Files/*.csv')
 db_df = pd.read_csv(ARK_db)
 
 for file in csv_files:
