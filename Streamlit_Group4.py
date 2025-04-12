@@ -106,13 +106,26 @@ if page == "Investment Strategy":
     stocks = stocks.tolist()
     stocks = [(lambda x: x.replace(" UQ", ""))(item) for item in stocks]
     stocks = stocks[:10]
-
-
+    ## ========== Display Stock Returns ==========##
+    # stock_class file created to house the Stocks class.
+    # Call the file
     def main():
-        setup = Stock(stocks)
-        new_df = setup.calc_returns()
-        return st.write(new_df)
-
+        mystocks = Stock(stocks)
+        new_df = mystocks.calc_returns()
+        return mystocks, new_df
 
     if __name__ == "__main__":
-        main()
+        mystocks, new_df = main()
+
+    tab1, tab2, tab3 = st.tabs(['Line Graph','Returns', 'Dataframe'])
+    fig, ax = plt.subplots()
+    graph_df = (mystocks.data.unstack()).reset_index()
+    graph_df = graph_df[graph_df['Price'] == 'Close']
+    graph_df = graph_df.rename(columns={0: "Value"})
+    tab1.write(graph_df)
+    tab1.line_chart(graph_df, x='Date', y='Value', color='Ticker')
+
+    # Create a line graph
+    fig, ax = plt.subplots()
+
+
