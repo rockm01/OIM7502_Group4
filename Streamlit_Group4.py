@@ -122,8 +122,10 @@ if page == "Investment Strategy":
     graph_df = (mystocks.data.unstack()).reset_index()
     graph_df = graph_df[graph_df['Price'] == 'Close']
     graph_df = graph_df.rename(columns={0: "Value"})
-    tab1.write(graph_df)
+    #tab1.write(graph_df)
     tab1.line_chart(graph_df, x='Date', y='Value', color='Ticker')
+    tab2.write(new_df)
+    tab3.write(graph_df)
 
     # Create a line graph
     fig, ax = plt.subplots()
