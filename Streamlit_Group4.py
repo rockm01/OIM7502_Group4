@@ -97,20 +97,33 @@ if page == "Fund Information":
 
 if page == "Investment Strategy":
     st.header('Investment Strategy')
-    st.markdown("## Choose the fund you're using to determine investment strategy:")
+    st.markdown("#### Choose the fund you're using to determine investment strategy:")
 
     with st.container(border=True):
         sel_fund = st.selectbox('Select a fund', fund_names)
 
+        left, right = st.columns(2)
+        with left:
+            num = st.text_input('Number of Periods')
+        with right:
+            prd_type = st.selectbox('Period Type', ['d', 'mo', 'y'], index=1)
+
+        prd = num + prd_type
+        st.write(f"Selected Period: {prd}")
+
+
+    # Filter the database for selected fund and get the top 10 holdings
     stocks = db_df[db_df['fund'] == sel_fund]['ticker'].unique()
     stocks = stocks.tolist()
     stocks = [(lambda x: x.replace(" UQ", ""))(item) for item in stocks]
     stocks = stocks[:10]
+
+
     ## ========== Display Stock Returns ==========##
     # stock_class file created to house the Stocks class.
     # Call the file
     def main():
-        mystocks = Stock(stocks)
+        mystocks = Stock(stocks, period=prd)
         new_df = mystocks.calc_returns()
         return mystocks, new_df
 
@@ -123,11 +136,48 @@ if page == "Investment Strategy":
     graph_df = graph_df[graph_df['Price'] == 'Close']
     graph_df = graph_df.rename(columns={0: "Value"})
     #tab1.write(graph_df)
-    tab1.line_chart(graph_df, x='Date', y='Value', color='Ticker')
-    tab2.write(new_df)
-    tab3.write(graph_df)
+    tab1.line_chart(graph_df, x='Date', y='Value',
+                    color='Ticker',
+                    x_label='Date', y_label='Ticker Price ($)'
+                    )
+    tab2.write(new_df, width=1200, hide_index=True)
+    tab3.write(graph_df, width=1200, hide_index=True)
 
     # Create a line graph
     fig, ax = plt.subplots()
 
+st.divider()
 
+st.markdown('#### Our Investment Recommendation')
+st.write("Based on the analysis of the selected fund's top holdings, we recommend focusing on the following strategies:")
+tot_ret = new_df['Returns'].sum()
+
+
+with st.container(border=True):
+    st.markdown("#### Investment Strategy for Aggregated Fund")
+
+
+
+    if tot_ret > 0:
+        st.write(''':chart_with_upwards_trend:''', f"{sel_fund} Cumulative Return: :green[${tot_ret:.2f}]")
+        st.write(f":green[*Overall returns for {sel_fund} are positive. If you are using entire fund as an investment reference"
+                 f", we recommend going long in the fund*]")
+    else:
+        st.write(''':chart_with_downwards_trend:''', f"{sel_fund} Cumulative Return: :red[${tot_ret:.2f}]")
+        st.write(f":red[*Overall returns for {sel_fund} are negative. If you are using entire fund as an investment reference"
+                 f", we recommend going short in the fund*]")
+
+with st.container(border=True):
+    st.markdown("#### Investment Strategy for Individual Stocks")
+    st.write("For individual stocks, we recommend the following strategies based on their returns:")
+
+    new_df_2 = pd.DataFrame(columns = ['Ticker', 'Investment Decision'])
+    for index, row in new_df.iterrows():
+        if row['Returns'] > 0:
+            new_df_2.loc[len(new_df_2)] = [row['Ticker'], '💲 Long']
+        else:
+            new_df_2.loc[len(new_df_2)] = [row['Ticker'], '❌ Short']
+
+
+    new_df_2.sort_values(by='Investment Decision', ascending=False, inplace=True)
+    st.dataframe(new_df_2, hide_index=True)

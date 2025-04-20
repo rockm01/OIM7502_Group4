@@ -3,12 +3,13 @@ import yfinance as yf
 import datetime as dt
 
 class Stock:
-    def __init__(self, stocks):
+    def __init__(self, stocks, period='5d'):
         self.stocks = stocks
+        self.period = period
         self.data = self.get_data()
 
     def get_data(self):
-        stock_data = yf.download(self.stocks, period="5d", interval='1d', group_by='ticker')
+        stock_data = yf.download(self.stocks, period=self.period, interval='1d', group_by='ticker')
         return stock_data
 
     def calc_returns(self):
