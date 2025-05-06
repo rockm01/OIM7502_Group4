@@ -25,14 +25,15 @@ latest_data = db_df[db_df['date'] == latest_date].copy()
 date_opts = db_df['date'].unique()  # list of dates
 
 if page == "Fund Information":
+    st.image('Images/Stock Image.jpg')
+
 
     ##========== Display a filtered dataset with the latest date ==========##
     #Start Section
     st.title('ARK Funds Information')
 
-    st.markdown("## Choose Fund")
     with st.container(border=True):
-        sel_fund = st.selectbox('', fund_names)
+        sel_fund = st.selectbox('Choose Fund', fund_names, index=1)
 
     #Create Tabs to flip between pie chart and dataframe
     tab1, tab2, tab3 = st.tabs(['Pie Chart', 'Performance', 'Dataframe'])
@@ -63,8 +64,9 @@ if page == "Fund Information":
 
     st.divider()
 
+
     with st.container(border=True):
-        sel_fund = st.selectbox('Select a fund', fund_names)
+        sel_fund = st.selectbox('Select a fund', fund_names, index=1)
 
         left, right = st.columns(2)
         with left:
@@ -123,19 +125,20 @@ if page == "Fund Information":
         tab1.pyplot(fig)
 
 
-    tab2.write(new_df, width=1200, hide_index=True)
-    tab3.write(graph_df, width=1200, hide_index=True)
+    tab2.dataframe(new_df, use_container_width=True, hide_index=True)
+    tab3.dataframe(graph_df, use_container_width=True, hide_index=True)
 
 
 
 ##========== Investment Strategy Page ==========##
 if page == "Investment Strategy":
+    st.image('Images/Invest Image.jpg')
     st.markdown("## Investment Strategy:")
     st.markdown('##### Choose Fund and Date Range for Investment Decision')
 
     # Start Section
     with st.container(border=True):
-        fund2 = st.selectbox('Select Fund', fund_names)
+        fund2 = st.selectbox('Select Fund', fund_names, index=1)
 
         # Have start and end date inputs set side by side
         left_column, right_column = st.columns(2)
@@ -173,8 +176,10 @@ if page == "Investment Strategy":
 
     st.divider()
 
+
     st.markdown('#### Investment Recommendation')
     st.write("Based on the analysis of the selected fund's top holdings, we recommend focusing on the following strategies:")
+
 
     #Calculate Fund's Return and volatility:
     sliced_df2 = db_df[(db_df['fund'] == fund2) & ((db_df['date'] == start_date) | (db_df['date'] == end_date))]
